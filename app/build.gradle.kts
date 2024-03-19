@@ -74,4 +74,5 @@ dependencies {
     // Manual implementatation
     implementation("androidx.appcompat:appcompat:1.4.1")
     implementation("com.android.volley:volley:1.2.0")
+    implementation("io.coil-kt:coil-compose:1.4.0")
 }

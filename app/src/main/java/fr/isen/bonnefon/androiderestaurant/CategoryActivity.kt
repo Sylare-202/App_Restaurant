@@ -25,6 +25,10 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import org.json.JSONObject
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
+
+
 data class MenuItem(
     val id: String,
     val nameFr: String,
@@ -170,20 +174,36 @@ fun CategoryScreen(name: String, items: List<MenuItem>, context: Context) {
     ) {
         Text(
             text = name,
-            style = customTitleStyle, // Using custom title style
+            style = customTitleStyle,
             modifier = Modifier.padding(top = 50.dp)
+        )
+        Divider(
+            modifier = Modifier.padding(horizontal = 90.dp, vertical = 8.dp),
+            color = Color.Gray,
+            thickness = 1.dp
         )
         val filteredItems = items.filter { it.categoryNameFr == name }
         filteredItems.forEach { item ->
-            Text(
-                text = item.nameFr, // Display the French name of the item
-                style = customItemsStyle,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .clickable {
-                        navigateToCourseActivity(context, item)
-                    }
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = item.nameFr,
+                    style = customItemsStyle,
+                    modifier = Modifier
+                        .padding(end = 10.dp)
+                        .clickable {
+                            navigateToCourseActivity(context, item)
+                        }
+                )
+                Text(
+                    text = item.prices.joinToString("€, ") { it.price } + "€",
+                    style = customItemsStyle,
+                    modifier = Modifier.padding(end = 5.dp)
+                )
+            }
         }
     }
 }
@@ -192,7 +212,7 @@ fun CategoryScreen(name: String, items: List<MenuItem>, context: Context) {
 // Function to navigate to CourseActivity
 fun navigateToCourseActivity(context: Context, item: MenuItem) {
     val intent = Intent(context, CourseActivity::class.java)
-    intent.putExtra("itemName", item.nameFr) // Pass the item name
+    intent.putExtra("itemName", item.nameFr)
     intent.putExtra("imageURL", item.images[0])
     intent.putExtra("ingredients", item.ingredients.joinToString(", ") { it.nameFr })
     println(item.ingredients.joinToString(", ") { it.nameFr })

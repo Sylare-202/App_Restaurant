@@ -13,6 +13,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import fr.isen.bonnefon.androiderestaurant.ui.theme.AndroidERestaurantTheme
 
 import androidx.compose.foundation.layout.Column
+import coil.compose.rememberImagePainter
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
+
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Button
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
+
 
 class CourseActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,14 +62,49 @@ fun CourseDetails(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column {
-            Text(text = "Item Name: $itemName")
-            Text(text = "Price: $itemPrice")
-            Text(text = "Ingredients: $ingredient")
-            Text(text = "Image URL: $image")
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Image
+            Image(
+                painter = rememberImagePainter(image),
+                contentDescription = "Item Image",
+                modifier = Modifier.fillMaxWidth().height(200.dp),
+                contentScale = ContentScale.FillWidth
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            // Title
+            Text(
+                text = itemName,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+            )
+            // Divider
+            Divider(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                color = Color.Gray
+            )
+            // Ingredients
+            Text(
+                text = "Ingredients: $ingredient",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            // Spacer
+            Spacer(modifier = Modifier.height(350.dp))
+            // Button
+            Button(
+                onClick = {
+                          /*TODO*/
+                          },
+                modifier = Modifier.fillMaxWidth(0.75f).align(Alignment.CenterHorizontally)
+            ) {
+                Text(text = "Total = $itemPrice€")
+            }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
