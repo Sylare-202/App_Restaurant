@@ -25,6 +25,38 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import org.json.JSONObject
 
+data class MenuItem(
+    val id: String,
+    val nameFr: String,
+    val nameEn: String,
+    val categoryId: String,
+    val categoryNameFr: String,
+    val categoryNameEn: String,
+    val images: List<String>,
+    val ingredients: List<Ingredient>,
+    val prices: List<Price>
+)
+
+data class Ingredient(
+    val id: String,
+    val shopId: String,
+    val nameFr: String,
+    val nameEn: String,
+    val createDate: String,
+    val updateDate: String,
+    val pizzaId: String
+)
+
+data class Price(
+    val id: String,
+    val pizzaId: String,
+    val sizeId: String,
+    val price: String,
+    val createDate: String,
+    val updateDate: String,
+    val size: String
+)
+
 
 val customItemsStyle = TextStyle(
     fontSize = 20.sp, // Adjust the size as needed
@@ -32,37 +64,15 @@ val customItemsStyle = TextStyle(
 )
 
 class CategoryActivity : ComponentActivity() {
-    /*private lateinit var name: String
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        name = intent.getStringExtra("name") ?: ""
-        val items = getItemsForCategory(name)
-        println("CategoryActivity: $name, $items")
-        setContent {
-            AndroidERestaurantTheme {
-                MenuCourses(name, items, this)
-            }
-        }
-    }
-
-    private fun getItemsForCategory(category: String): List<String> {
-        return when (category) {
-            getString(R.string.starters_title) -> resources.getStringArray(R.array.starters_items).toList()
-            getString(R.string.main_courses_title) -> resources.getStringArray(R.array.main_courses_items).toList()
-            getString(R.string.desserts_title) -> resources.getStringArray(R.array.desserts_items).toList()
-            else -> emptyList()
-        }
-    }*/
     private lateinit var name: String
-    private var items: List<String> = emptyList()
+    private var items: List<MenuItem> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         name = intent.getStringExtra("name") ?: ""
         getMenuItems()
         setContent {
-            CategoryScreen(name, items)
+            CategoryScreen(name, items, this)
         }
     }
 
@@ -78,9 +88,9 @@ class CategoryActivity : ComponentActivity() {
         val jsonObjectRequest = JsonObjectRequest(
             Request.Method.POST, url, jsonParams,
             { response ->
-                items = parseMenuItems(response)
+                val items = parseMenuItems(response) // Parse the JSON response
                 setContent {
-                    CategoryScreen(name, items)
+                    CategoryScreen(name, items, this)
                 }
             },
             { error ->
@@ -90,55 +100,69 @@ class CategoryActivity : ComponentActivity() {
         requestQueue.add(jsonObjectRequest)
     }
 
-    private fun parseMenuItems(response: JSONObject): List<String> {
-        val items = mutableListOf<String>()
+    private fun parseMenuItems(response: JSONObject): List<MenuItem> {
+        val menuItems = mutableListOf<MenuItem>()
         val dataArray = response.getJSONArray("data")
 
         for (i in 0 until dataArray.length()) {
             val categoryObject = dataArray.getJSONObject(i)
+            val categoryNameFr = categoryObject.getString("name_fr")
             val categoryItems = categoryObject.getJSONArray("items")
 
             for (j in 0 until categoryItems.length()) {
                 val itemObject = categoryItems.getJSONObject(j)
-                val itemName = itemObject.getString("name_fr") // Assuming you want to use the French name
-                items.add(itemName)
+                val id = itemObject.getString("id")
+                val nameFr = itemObject.getString("name_fr")
+                val nameEn = itemObject.getString("name_en")
+                val categoryId = itemObject.getString("id_category")
+                val categoryNameEn = itemObject.getString("categ_name_en")
+                val imagesArray = itemObject.getJSONArray("images")
+                val images = mutableListOf<String>()
+                for (k in 0 until imagesArray.length()) {
+                    images.add(imagesArray.getString(k))
+                }
+
+                val ingredientsArray = itemObject.getJSONArray("ingredients")
+                val ingredients = mutableListOf<Ingredient>()
+                for (k in 0 until ingredientsArray.length()) {
+                    val ingredientObject = ingredientsArray.getJSONObject(k)
+                    val ingredientId = ingredientObject.getString("id")
+                    val shopId = ingredientObject.getString("id_shop")
+                    val ingredientNameFr = ingredientObject.getString("name_fr")
+                    val ingredientNameEn = ingredientObject.getString("name_en")
+                    val createDate = ingredientObject.getString("create_date")
+                    val updateDate = ingredientObject.getString("update_date")
+                    val pizzaId = ingredientObject.getString("id_pizza")
+                    ingredients.add(Ingredient(ingredientId, shopId, ingredientNameFr, ingredientNameEn, createDate, updateDate, pizzaId))
+                }
+
+                val pricesArray = itemObject.getJSONArray("prices")
+                val prices = mutableListOf<Price>()
+                for (k in 0 until pricesArray.length()) {
+                    val priceObject = pricesArray.getJSONObject(k)
+                    val priceId = priceObject.getString("id")
+                    val pizzaId = priceObject.getString("id_pizza")
+                    val sizeId = priceObject.getString("id_size")
+                    val price = priceObject.getString("price")
+                    val createDate = priceObject.getString("create_date")
+                    val updateDate = priceObject.getString("update_date")
+                    val size = priceObject.getString("size")
+                    prices.add(Price(priceId, pizzaId, sizeId, price, createDate, updateDate, size))
+                }
+
+                val menuItem = MenuItem(id, nameFr, nameEn, categoryId, categoryNameFr, categoryNameEn, images, ingredients, prices)
+                menuItems.add(menuItem)
             }
         }
-        println("Items: $items")
-        return items
+
+        println("Menu Items: $menuItems")
+        return menuItems
     }
 
 }
 
-/*@Composable
-fun MenuCourses(name: String, items: List<String>, context: Context, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        Text(
-            text = name,
-            style = customTitleStyle, // Using custom title style
-            modifier = Modifier.padding(top = 50.dp)
-        )
-        Divider(modifier = Modifier.padding(horizontal = 90.dp, vertical = 8.dp), color = Color.Gray, thickness = 1.dp)
-        items.forEach { item ->
-            Text(
-                text = item,
-                style = customItemsStyle,
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .clickable {
-                        navigateToCourseActivity(context, item)
-                    }
-            )
-        }
-    }
-}*/
-
 @Composable
-fun CategoryScreen(name: String, items: List<String>) {
+fun CategoryScreen(name: String, items: List<MenuItem>, context: Context) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -149,19 +173,30 @@ fun CategoryScreen(name: String, items: List<String>) {
             style = customTitleStyle, // Using custom title style
             modifier = Modifier.padding(top = 50.dp)
         )
-        items.forEach { item ->
+        val filteredItems = items.filter { it.categoryNameFr == name }
+        filteredItems.forEach { item ->
             Text(
-                text = item,
+                text = item.nameFr, // Display the French name of the item
                 style = customItemsStyle,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .clickable {
+                        navigateToCourseActivity(context, item)
+                    }
             )
         }
     }
 }
 
+
 // Function to navigate to CourseActivity
-fun navigateToCourseActivity(context: Context, itemName: String) {
+fun navigateToCourseActivity(context: Context, item: MenuItem) {
     val intent = Intent(context, CourseActivity::class.java)
-    intent.putExtra("itemName", itemName)
+    intent.putExtra("itemName", item.nameFr) // Pass the item name
+    intent.putExtra("imageURL", item.images[0])
+    intent.putExtra("ingredients", item.ingredients.joinToString(", ") { it.nameFr })
+    println(item.ingredients.joinToString(", ") { it.nameFr })
+    intent.putExtra("prices", item.prices.joinToString(", ") { it.price })
+    println(item.prices.joinToString(", ") { it.price })
     context.startActivity(intent)
 }

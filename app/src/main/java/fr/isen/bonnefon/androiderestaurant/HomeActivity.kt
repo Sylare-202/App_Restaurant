@@ -61,9 +61,9 @@ fun MenuScreen(activity: MainActivity) {
             style = customTitleStyle,
             modifier = Modifier.padding(bottom = 100.dp)
         )
-        MenuButton(activity, "Starters")
+        MenuButton(activity, "Entrées")
         Divider(modifier = Modifier.padding(horizontal = 90.dp, vertical = 8.dp), color = Color.Gray, thickness = 1.dp)
-        MenuButton(activity, "Main Courses")
+        MenuButton(activity, "Plats")
         Divider(modifier = Modifier.padding(horizontal = 90.dp, vertical = 8.dp), color = Color.Gray, thickness = 1.dp)
         MenuButton(activity, "Desserts")
     }
@@ -96,8 +96,8 @@ fun MenuPreview() {
 // Function to get the corresponding category activity
 fun getCategoryActivity(category: String): Class<out Any> {
     return when (category) {
-        "Starters" -> CategoryActivity::class.java
-        "Main Courses" -> CategoryActivity::class.java
+        "Entrées" -> CategoryActivity::class.java
+        "Plats" -> CategoryActivity::class.java
         "Desserts" -> CategoryActivity::class.java
         else -> MainActivity::class.java
     }
