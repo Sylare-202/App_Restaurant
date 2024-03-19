@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="starters_items">
+        <item>Starter 1</item>
+        <item>Starter 2</item>
+        <!-- Add more starters as needed -->
+    </string-array>
+    <string-array name="main_courses_items">
+        <item>Main Course 1</item>
+        <item>Main Course 2</item>
+        <!-- Add more main courses as needed -->
+    </string-array>
+    <string-array name="desserts_items">
+        <item>Dessert 1</item>
+        <item>Dessert 2</item>
+        <!-- Add more desserts as needed -->
+    </string-array>
+</resources>
