@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">AndroidERestaurant</string>
+    <string name="title_activity_starters">StartersActivity</string>
+    <string name="title_activity_main_courses">MainCoursesActivity</string>
+    <string name="title_activity_desserts">DessertsActivity</string>
+
+    <string name="starters_title">Starters</string>
+
+    <string name="main_courses_title">Main Courses</string>
+
+    <string name="desserts_title">Desserts</string>
+    <string name="title_activity_course">CourseActivity</string>
+</resources>
