@@ -216,7 +216,11 @@ fun navigateToCourseActivity(context: Context, item: MenuItem) {
     intent.putStringArrayListExtra("imageURLs", ArrayList(item.images))
     intent.putExtra("ingredients", item.ingredients.joinToString(", ") { it.nameFr })
     println(item.ingredients.joinToString(", ") { it.nameFr })
-    intent.putExtra("prices", item.prices.joinToString(", ") { it.price })
-    println(item.prices.joinToString(", ") { it.price })
+
+    // Extract prices as a list of strings
+    val pricesList = item.prices.map { it.price }
+    intent.putStringArrayListExtra("prices", ArrayList(pricesList))
+    println(pricesList.joinToString(", ") { it })
+
     context.startActivity(intent)
 }

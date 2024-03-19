@@ -50,15 +50,15 @@ class CourseActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val itemName = intent.getStringExtra("itemName") ?: ""
-        val itemPrice = intent.getStringExtra("prices") ?: ""
         val ingredient = intent.getStringExtra("ingredients") ?: ""
         val images = intent.getStringArrayListExtra("imageURLs") ?: emptyList<String>()
+        val itemPrices = intent.getStringArrayListExtra("prices") ?: emptyList<String>()
 
         setContent {
             AndroidERestaurantTheme {
                 CourseDetails(
                     itemName = itemName,
-                    itemPrice = itemPrice,
+                    itemPrices = itemPrices,
                     ingredient = ingredient,
                     images = images
                 )
@@ -67,10 +67,11 @@ class CourseActivity : ComponentActivity() {
     }
 }
 
+
 @Composable
 fun CourseDetails(
     itemName: String,
-    itemPrice: String,
+    itemPrices: List<String>,
     ingredient: String,
     images: List<String>
 ) {
@@ -153,23 +154,26 @@ fun CourseDetails(
                     }
                 }
                 // Spacer
-                Spacer(modifier = Modifier.height(200.dp))
+                Spacer(modifier = Modifier.height(150.dp))
                 // Button
-                Box(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-                ) {
-                    Button(
-                        onClick = {
-                            /*TODO*/
-                        },
-                        modifier = Modifier.align(Alignment.Center).fillMaxWidth(0.75f)
+                itemPrices.forEach { price ->
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                     ) {
-                        val price = itemPrice.replace("€", "").toInt() * quantity
-                        Text(
-                            text = "Total = $price€",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                        Button(
+                            onClick = {
+                                /*TODO*/
+                            },
+                            modifier = Modifier.align(Alignment.Center).fillMaxWidth(0.75f)
+                        ) {
+                            val totalPrice = price.replace("€", "").toInt() * quantity
+                            Text(
+                                text = "Total = $totalPrice€",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
@@ -183,7 +187,7 @@ fun CourseDetailsPreview() {
     AndroidERestaurantTheme {
         CourseDetails(
             itemName = "Item Name",
-            itemPrice = "$10",
+            itemPrices = listOf("$10"),
             ingredient = "Ingredient 1, Ingredient 2",
             images = listOf("https://source.unsplash.com/random/200x200")
         )
