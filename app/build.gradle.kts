@@ -75,4 +75,8 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.4.1")
     implementation("com.android.volley:volley:1.2.0")
     implementation("io.coil-kt:coil-compose:1.4.0")
+
+    implementation("androidx.compose.material:material-icons-extended:1.0.0")
+    implementation("androidx.compose.material:material:1.0.0")
+
 }
