@@ -29,6 +29,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Spacer
 
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+
+
 
 class CourseActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +40,7 @@ class CourseActivity : ComponentActivity() {
         val itemName = intent.getStringExtra("itemName") ?: ""
         val itemPrice = intent.getStringExtra("prices") ?: ""
         val ingredient = intent.getStringExtra("ingredients") ?: ""
-        val image = intent.getStringExtra("imageURL") ?: ""
+        val images = intent.getStringArrayListExtra("imageURLs") ?: emptyList<String>()
 
         setContent {
             AndroidERestaurantTheme {
@@ -44,7 +48,7 @@ class CourseActivity : ComponentActivity() {
                     itemName = itemName,
                     itemPrice = itemPrice,
                     ingredient = ingredient,
-                    image = image
+                    images = images
                 )
             }
         }
@@ -56,55 +60,68 @@ fun CourseDetails(
     itemName: String,
     itemPrice: String,
     ingredient: String,
-    image: String
+    images: List<String>
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Image
-            Image(
-                painter = rememberImagePainter(image),
-                contentDescription = "Item Image",
-                modifier = Modifier.fillMaxWidth().height(200.dp),
-                contentScale = ContentScale.FillWidth
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            // Title
-            Text(
-                text = itemName,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-            )
-            // Divider
-            Divider(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                color = Color.Gray
-            )
-            // Ingredients
-            Text(
-                text = "Ingredients: $ingredient",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-            // Spacer
-            Spacer(modifier = Modifier.height(350.dp))
-            // Button
-            Button(
-                onClick = {
-                          /*TODO*/
-                          },
-                modifier = Modifier.fillMaxWidth(0.75f).align(Alignment.CenterHorizontally)
-            ) {
-                Text(text = "Total = $itemPrice€")
+            item {
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(images.size) { index ->
+                        Image(
+                            painter = rememberImagePainter(images[index]),
+                            contentDescription = "Item Image",
+                            modifier = Modifier.width(400.dp).height(200.dp),
+                            contentScale = ContentScale.FillWidth
+                        )
+                    }
+                }
+            }
+            item {
+                // Title
+                Text(
+                    text = itemName,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                )
+                // Divider
+                Divider(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    color = Color.Gray
+                )
+                // Ingredients
+                Text(
+                    text = "Ingredients: $ingredient",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                // Spacer
+                Spacer(modifier = Modifier.height(350.dp))
+                // Button
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            /*TODO*/
+                        },
+                        modifier = Modifier.align(Alignment.Center).fillMaxWidth(0.75f)
+                    ) {
+                        Text(text = "Total = $itemPrice€")
+                    }
+                }
             }
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
@@ -114,7 +131,7 @@ fun CourseDetailsPreview() {
             itemName = "Item Name",
             itemPrice = "$10",
             ingredient = "Ingredient 1, Ingredient 2",
-            image = "https://example.com/image.jpg"
+            images = listOf("https://source.unsplash.com/random/200x200")
         )
     }
 }

@@ -213,7 +213,7 @@ fun CategoryScreen(name: String, items: List<MenuItem>, context: Context) {
 fun navigateToCourseActivity(context: Context, item: MenuItem) {
     val intent = Intent(context, CourseActivity::class.java)
     intent.putExtra("itemName", item.nameFr)
-    intent.putExtra("imageURL", item.images[0])
+    intent.putStringArrayListExtra("imageURLs", ArrayList(item.images))
     intent.putExtra("ingredients", item.ingredients.joinToString(", ") { it.nameFr })
     println(item.ingredients.joinToString(", ") { it.nameFr })
     intent.putExtra("prices", item.prices.joinToString(", ") { it.price })
