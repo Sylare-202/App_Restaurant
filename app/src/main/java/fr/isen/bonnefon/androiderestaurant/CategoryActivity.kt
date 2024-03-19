@@ -27,6 +27,14 @@ import org.json.JSONObject
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Row
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Surface
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.MaterialTheme
 
 
 data class MenuItem(
@@ -61,6 +69,31 @@ data class Price(
     val size: String
 )
 
+@Composable
+fun TopBar (
+    onBackClicked: () -> Unit,
+    onCartClicked: () -> Unit
+) {
+    Surface (
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.primary
+    ) {
+        TopAppBar(
+            title = { Text(text = "Item Details") },
+            navigationIcon = {
+                IconButton(onClick = onBackClicked) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                }
+            },
+            actions = {
+                IconButton(onClick = onCartClicked) {
+                    Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
+                }
+            }
+        )
+    }
+}
+
 
 val customItemsStyle = TextStyle(
     fontSize = 20.sp, // Adjust the size as needed
@@ -76,7 +109,16 @@ class CategoryActivity : ComponentActivity() {
         name = intent.getStringExtra("name") ?: ""
         getMenuItems()
         setContent {
-            CategoryScreen(name, items, this)
+            Column {
+                TopBar(
+                    onBackClicked = { finish() },
+                    onCartClicked = {
+                        val intent = Intent(this@CategoryActivity, CartActivity::class.java)
+                        startActivity(intent)
+                    }
+                )
+                CategoryScreen(name, items, this@CategoryActivity)
+            }
         }
     }
 
@@ -94,7 +136,16 @@ class CategoryActivity : ComponentActivity() {
             { response ->
                 val items = parseMenuItems(response) // Parse the JSON response
                 setContent {
-                    CategoryScreen(name, items, this)
+                    Column {
+                        TopBar(
+                            onBackClicked = { finish() },
+                            onCartClicked = {
+                                val intent = Intent(this@CategoryActivity, CartActivity::class.java)
+                                startActivity(intent)
+                            }
+                        )
+                        CategoryScreen(name, items, this@CategoryActivity)
+                    }
                 }
             },
             { error ->
@@ -185,7 +236,9 @@ fun CategoryScreen(name: String, items: List<MenuItem>, context: Context) {
         val filteredItems = items.filter { it.categoryNameFr == name }
         filteredItems.forEach { item ->
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {

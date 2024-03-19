@@ -1,5 +1,6 @@
 package fr.isen.bonnefon.androiderestaurant
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -35,7 +36,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
@@ -56,17 +56,25 @@ class CourseActivity : ComponentActivity() {
 
         setContent {
             AndroidERestaurantTheme {
-                CourseDetails(
-                    itemName = itemName,
-                    itemPrices = itemPrices,
-                    ingredient = ingredient,
-                    images = images
-                )
+                Column {
+                    TopBar(
+                        onBackClicked = { finish() },
+                        onCartClicked = {
+                            val intent = Intent(this@CourseActivity, CartActivity::class.java)
+                            startActivity(intent)
+                        }
+                    )
+                    CourseDetails(
+                        itemName = itemName,
+                        itemPrices = itemPrices,
+                        ingredient = ingredient,
+                        images = images
+                    )
+                }
             }
         }
     }
 }
-
 
 @Composable
 fun CourseDetails(
@@ -96,7 +104,9 @@ fun CourseDetails(
                         Image(
                             painter = rememberImagePainter(images[index]),
                             contentDescription = "Item Image",
-                            modifier = Modifier.width(400.dp).height(200.dp),
+                            modifier = Modifier
+                                .width(400.dp)
+                                .height(200.dp),
                             contentScale = ContentScale.FillWidth
                         )
                     }
@@ -107,11 +117,15 @@ fun CourseDetails(
                 Text(
                     text = itemName,
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
                 )
                 // Divider
                 Divider(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
                     color = Color.Gray
                 )
                 // Ingredients
@@ -158,15 +172,19 @@ fun CourseDetails(
                 // Button
                 itemPrices.forEach { price ->
                     Box(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
                     ) {
                         Button(
                             onClick = {
                                 /*TODO*/
                             },
-                            modifier = Modifier.align(Alignment.Center).fillMaxWidth(0.75f)
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .fillMaxWidth(0.75f)
                         ) {
-                            val totalPrice = price.replace("€", "").toInt() * quantity
+                            val totalPrice = price.replace("€", "").toDouble() * quantity
                             Text(
                                 text = "Total = $totalPrice€",
                                 style = MaterialTheme.typography.bodyLarge
@@ -185,11 +203,18 @@ fun CourseDetails(
 @Composable
 fun CourseDetailsPreview() {
     AndroidERestaurantTheme {
-        CourseDetails(
-            itemName = "Item Name",
-            itemPrices = listOf("$10"),
-            ingredient = "Ingredient 1, Ingredient 2",
-            images = listOf("https://source.unsplash.com/random/200x200")
-        )
+        Column {
+            TopBar(
+                onBackClicked = { /*TODO*/ },
+                onCartClicked = { /*TODO*/ }
+            )
+            CourseDetails(
+                itemName = "Item Name",
+                itemPrices = listOf("$10"),
+                ingredient = "Ingredient 1, Ingredient 2",
+                images = listOf("https://source.unsplash.com/random/200x200")
+            )
+        }
     }
 }
+
