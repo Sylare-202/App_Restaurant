@@ -80,5 +80,6 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended:1.0.0")
     implementation("androidx.compose.material:material:1.0.0")
+    implementation("com.google.code.gson:gson:2.8.8")
 
 }

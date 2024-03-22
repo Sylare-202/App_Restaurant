@@ -1,12 +1,12 @@
 package fr.isen.bonnefon.androiderestaurant
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -45,6 +45,11 @@ import androidx.compose.material.Surface
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.File
+
+import android.widget.Toast
 
 class CourseActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,7 +73,8 @@ class CourseActivity : ComponentActivity() {
                         itemName = itemName,
                         itemPrices = itemPrices,
                         ingredient = ingredient,
-                        images = images
+                        images = images,
+                        context = this@CourseActivity
                     )
                 }
             }
@@ -81,7 +87,8 @@ fun CourseDetails(
     itemName: String,
     itemPrices: List<String>,
     ingredient: String,
-    images: List<String>
+    images: List<String>,
+    context: Context
 ) {
     var quantity by remember {
         mutableStateOf(1)
@@ -178,7 +185,15 @@ fun CourseDetails(
                     ) {
                         Button(
                             onClick = {
-                                /*TODO*/
+                                val totalPrice = price.replace("€", "").toDouble() * quantity
+                                val cartItem = CartItem(
+                                    itemName,
+                                    totalPrice,
+                                    ingredient,
+                                    images[0], // Assuming there's only one image per item
+                                    quantity
+                                )
+                                addToCart(cartItem, context)
                             },
                             modifier = Modifier
                                 .align(Alignment.Center)
@@ -199,6 +214,30 @@ fun CourseDetails(
 }
 
 
+fun addToCart(item: CartItem, context: Context) {
+    val cartFile = File(context.filesDir, "cart.json")
+    val jsonArray = if (cartFile.exists()) {
+        JSONArray(cartFile.readText())
+    } else {
+        JSONArray()
+    }
+
+    val jsonObject = JSONObject().apply {
+        put("name", item.name)
+        put("price", item.price)
+        put("ingredient", item.ingredient)
+        put("img", item.img)
+        put("quantity", item.quantity)
+    }
+    jsonArray.put(jsonObject)
+
+    cartFile.writeText(jsonArray.toString())
+
+    Toast.makeText(context, "Item added to cart", Toast.LENGTH_SHORT).show()
+    println("jsonArray: $jsonArray")
+    println("cartFile: ${cartFile.readText()}")
+}
+
 @Preview(showBackground = true)
 @Composable
 fun CourseDetailsPreview() {
@@ -212,7 +251,8 @@ fun CourseDetailsPreview() {
                 itemName = "Item Name",
                 itemPrices = listOf("$10"),
                 ingredient = "Ingredient 1, Ingredient 2",
-                images = listOf("https://source.unsplash.com/random/200x200")
+                images = listOf("https://source.unsplash.com/random/200x200"),
+                context = MainActivity()
             )
         }
     }

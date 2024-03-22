@@ -35,6 +35,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.MaterialTheme
+import org.json.JSONArray
 
 
 data class MenuItem(
@@ -69,6 +70,13 @@ data class Price(
     val size: String
 )
 
+data class CartItem(
+    val name: String,
+    val price: Double,
+    val ingredient: String,
+    val img: String,
+    var quantity: Int
+)
 @Composable
 fun TopBar (
     onBackClicked: () -> Unit,
@@ -215,6 +223,7 @@ class CategoryActivity : ComponentActivity() {
     }
 
 }
+
 
 @Composable
 fun CategoryScreen(name: String, items: List<MenuItem>, context: Context) {
