@@ -10,14 +10,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import fr.isen.bonnefon.androiderestaurant.ui.theme.AndroidERestaurantTheme
 import org.json.JSONArray
 import java.io.File
-import android.content.Intent
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -54,21 +51,7 @@ class CartActivity : ComponentActivity() {
             AndroidERestaurantTheme {
                 var cartItemCount = countCartItems(this)
                 Column {
-                    TopBar(
-                        onBackClicked = {
-                            val intent = Intent(this@CartActivity, MainActivity::class.java)
-                            startActivity(intent)
-                        },
-                        onCartClicked = {
-                            Toast.makeText(
-                                this@CartActivity,
-                                "Vous etes deja dans le panier",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        },
-                        topBarName = "Panier",
-                        cartItemCount = cartItemCount
-                    )
+                    CallTopBar("Panier", this@CartActivity)
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background

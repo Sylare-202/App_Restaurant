@@ -50,6 +50,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
+
 data class MenuItem(
     val id: String,
     val nameFr: String,
@@ -96,7 +97,7 @@ fun TopBar(
     onBackClicked: () -> Unit,
     onCartClicked: () -> Unit,
     topBarName: String,
-    cartItemCount: Int
+    cartItemCount: MutableState<Int>
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth()
@@ -126,7 +127,7 @@ fun TopBar(
                             tint = Color.White
                         )
                     }
-                    if (cartItemCount > 0) {
+                    if (cartItemCount.value > 0) {
                         // Display a badge only if there are items in the cart
                         Box(
                             modifier = Modifier
@@ -138,7 +139,7 @@ fun TopBar(
                                 contentColor = Color.White
                             ) {
                                 Text(
-                                    text = cartItemCount.toString(),
+                                    text = cartItemCount.value.toString(),
                                     style = TextStyle(fontSize = 12.sp, color = Color.White)
                                 )
                             }
@@ -164,23 +165,15 @@ class CategoryActivity : ComponentActivity() {
     private lateinit var name: String
     private var items: List<MenuItem> = emptyList()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         name = intent.getStringExtra("name") ?: ""
         getMenuItems()
         setContent {
-            val cartItemCount = countCartItems(this)
+            val cartItemCount = remember { mutableStateOf(0) }
             Column {
-                TopBar(
-                    onBackClicked = { finish() },
-                    onCartClicked = {
-                        val intent = Intent(this@CategoryActivity, CartActivity::class.java)
-                        startActivity(intent)
-                    },
-                    topBarName = "$name",
-                    cartItemCount = cartItemCount
-                )
+                CallTopBar("$name", this@CategoryActivity)
                 CategoryScreen(name, items, this@CategoryActivity)
             }
         }
@@ -200,17 +193,8 @@ class CategoryActivity : ComponentActivity() {
             { response ->
                 val items = parseMenuItems(response) // Parse the JSON response
                 setContent {
-                    val cartItemCount = countCartItems(this)
                     Column {
-                        TopBar(
-                            onBackClicked = { finish() },
-                            onCartClicked = {
-                                val intent = Intent(this@CategoryActivity, CartActivity::class.java)
-                                startActivity(intent)
-                            },
-                            topBarName = "$name Menu",
-                            cartItemCount = cartItemCount
-                        )
+                        CallTopBar("$name", this@CategoryActivity)
                         CategoryScreen(name, items, this@CategoryActivity)
                     }
                 }
@@ -301,6 +285,21 @@ class CategoryActivity : ComponentActivity() {
         return menuItems
     }
 
+}
+
+@Composable
+fun CallTopBar(name: String, context: Context) {
+    val cartItemCount = remember { mutableStateOf(countCartItems(context)) }
+
+    TopBar(
+        onBackClicked = { context as ComponentActivity; context.finish() },
+        onCartClicked = {
+            val intent = Intent(context, CartActivity::class.java)
+            context.startActivity(intent)
+        },
+        topBarName = "$name",
+        cartItemCount = cartItemCount
+    )
 }
 
 @Composable

@@ -1,7 +1,6 @@
 package fr.isen.bonnefon.androiderestaurant
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,7 +9,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import fr.isen.bonnefon.androiderestaurant.ui.theme.AndroidERestaurantTheme
 
 import androidx.compose.foundation.layout.Column
@@ -50,7 +48,6 @@ import org.json.JSONObject
 import java.io.File
 
 import android.widget.Toast
-import androidx.compose.material.icons.materialIcon
 
 class CourseActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,17 +59,8 @@ class CourseActivity : ComponentActivity() {
 
         setContent {
             AndroidERestaurantTheme {
-                val cartItemCount = countCartItems(this)
                 Column {
-                    TopBar(
-                        onBackClicked = { finish() },
-                        onCartClicked = {
-                            val intent = Intent(this@CourseActivity, CartActivity::class.java)
-                            startActivity(intent)
-                        },
-                        topBarName = if (itemName.length > 15) "${itemName.take(15)}... Details" else "$itemName Details",
-                        cartItemCount = cartItemCount
-                    )
+                    CallTopBar(if (itemName.length > 15) "${itemName.take(15)}... Details" else "$itemName Details", this@CourseActivity)
                     CourseDetails(
                         itemName = itemName,
                         itemPrices = itemPrices,
