@@ -14,9 +14,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import fr.isen.bonnefon.androiderestaurant.ui.theme.AndroidERestaurantTheme
 import org.json.JSONArray
 import java.io.File
-
-import android.content.Context
 import android.content.Intent
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,9 +52,13 @@ class CartActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AndroidERestaurantTheme {
+                var cartItemCount = countCartItems(this)
                 Column {
                     TopBar(
-                        onBackClicked = { finish() },
+                        onBackClicked = {
+                            val intent = Intent(this@CartActivity, MainActivity::class.java)
+                            startActivity(intent)
+                        },
                         onCartClicked = {
                             Toast.makeText(
                                 this@CartActivity,
@@ -63,7 +66,8 @@ class CartActivity : ComponentActivity() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         },
-                        topBarName = "Panier"
+                        topBarName = "Panier",
+                        cartItemCount = cartItemCount
                     )
                     Surface(
                         modifier = Modifier.fillMaxSize(),
@@ -71,6 +75,7 @@ class CartActivity : ComponentActivity() {
                     ) {
                         CartContent(this@CartActivity) { item ->
                             onDeleteItem(this@CartActivity, item)
+                            cartItemCount = countCartItems(this@CartActivity)
                         }
                     }
                 }

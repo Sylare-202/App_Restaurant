@@ -62,6 +62,7 @@ class CourseActivity : ComponentActivity() {
 
         setContent {
             AndroidERestaurantTheme {
+                val cartItemCount = countCartItems(this)
                 Column {
                     TopBar(
                         onBackClicked = { finish() },
@@ -69,7 +70,8 @@ class CourseActivity : ComponentActivity() {
                             val intent = Intent(this@CourseActivity, CartActivity::class.java)
                             startActivity(intent)
                         },
-                        topBarName = if (itemName.length > 15) "${itemName.take(15)}... Details" else "$itemName Details"
+                        topBarName = if (itemName.length > 15) "${itemName.take(15)}... Details" else "$itemName Details",
+                        cartItemCount = cartItemCount
                     )
                     CourseDetails(
                         itemName = itemName,
@@ -159,7 +161,7 @@ fun CourseDetails(
                     ) {
                         IconButton(
                             onClick = { if (quantity > 1) quantity-- },
-                            modifier = Modifier.size(48.dp)
+                            modifier = Modifier.size(75.dp)
                         ) {
                             Icon(Icons.Default.Remove, contentDescription = "Decrease")
                         }
@@ -170,7 +172,7 @@ fun CourseDetails(
                         )
                         IconButton(
                             onClick = { quantity++ },
-                            modifier = Modifier.size(48.dp)
+                            modifier = Modifier.size(75.dp)
                         ) {
                             Icon(Icons.Default.Add, contentDescription = "Increase")
                         }

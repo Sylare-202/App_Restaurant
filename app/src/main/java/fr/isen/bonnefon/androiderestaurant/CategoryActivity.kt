@@ -1,4 +1,5 @@
 package fr.isen.bonnefon.androiderestaurant
+
 import android.os.Bundle
 import android.content.Context
 import android.content.Intent
@@ -17,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import fr.isen.bonnefon.androiderestaurant.ui.theme.AndroidERestaurantTheme
 
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
@@ -33,11 +33,22 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.MaterialTheme
-import org.json.JSONArray
-import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.graphics.Color
 
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.rememberImagePainter
+
+import androidx.compose.foundation.rememberScrollState
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material.Badge
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 
 data class MenuItem(
     val id: String,
@@ -78,25 +89,61 @@ data class CartItem(
     val img: String,
     var quantity: Int
 )
+
+
 @Composable
-fun TopBar (
+fun TopBar(
     onBackClicked: () -> Unit,
     onCartClicked: () -> Unit,
-    topBarName: String
+    topBarName: String,
+    cartItemCount: Int
 ) {
-    Surface (
+    Surface(
         modifier = Modifier.fillMaxWidth()
     ) {
         TopAppBar(
-            title = { Text(text = topBarName, style = TextStyle(fontSize = 20.sp), color = Color.White)},
+            title = {
+                Text(
+                    text = topBarName,
+                    style = TextStyle(fontSize = 20.sp),
+                    color = Color.White
+                )
+            },
             navigationIcon = {
                 IconButton(onClick = onBackClicked) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
             },
             actions = {
-                IconButton(onClick = onCartClicked) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = "Cart", tint = Color.White)
+                Box(
+                    modifier = Modifier.padding(end = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    IconButton(onClick = onCartClicked) {
+                        Icon(
+                            Icons.Default.ShoppingCart,
+                            contentDescription = "Cart",
+                            tint = Color.White
+                        )
+                    }
+                    if (cartItemCount > 0) {
+                        // Display a badge only if there are items in the cart
+                        Box(
+                            modifier = Modifier
+                                .padding(top = 4.dp, end = 4.dp) // Adjust padding as needed
+                                .align(Alignment.TopEnd)
+                        ) {
+                            Badge(
+                                backgroundColor = Color.Red,
+                                contentColor = Color.White
+                            ) {
+                                Text(
+                                    text = cartItemCount.toString(),
+                                    style = TextStyle(fontSize = 12.sp, color = Color.White)
+                                )
+                            }
+                        }
+                    }
                 }
             },
             // Set the background color to blue
@@ -104,6 +151,8 @@ fun TopBar (
         )
     }
 }
+
+
 
 
 val customItemsStyle = TextStyle(
@@ -117,9 +166,11 @@ class CategoryActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         name = intent.getStringExtra("name") ?: ""
         getMenuItems()
         setContent {
+            val cartItemCount = countCartItems(this)
             Column {
                 TopBar(
                     onBackClicked = { finish() },
@@ -127,7 +178,8 @@ class CategoryActivity : ComponentActivity() {
                         val intent = Intent(this@CategoryActivity, CartActivity::class.java)
                         startActivity(intent)
                     },
-                    topBarName = "$name"
+                    topBarName = "$name",
+                    cartItemCount = cartItemCount
                 )
                 CategoryScreen(name, items, this@CategoryActivity)
             }
@@ -148,6 +200,7 @@ class CategoryActivity : ComponentActivity() {
             { response ->
                 val items = parseMenuItems(response) // Parse the JSON response
                 setContent {
+                    val cartItemCount = countCartItems(this)
                     Column {
                         TopBar(
                             onBackClicked = { finish() },
@@ -155,7 +208,8 @@ class CategoryActivity : ComponentActivity() {
                                 val intent = Intent(this@CategoryActivity, CartActivity::class.java)
                                 startActivity(intent)
                             },
-                            topBarName = "$name"
+                            topBarName = "$name Menu",
+                            cartItemCount = cartItemCount
                         )
                         CategoryScreen(name, items, this@CategoryActivity)
                     }
@@ -201,7 +255,17 @@ class CategoryActivity : ComponentActivity() {
                     val createDate = ingredientObject.getString("create_date")
                     val updateDate = ingredientObject.getString("update_date")
                     val pizzaId = ingredientObject.getString("id_pizza")
-                    ingredients.add(Ingredient(ingredientId, shopId, ingredientNameFr, ingredientNameEn, createDate, updateDate, pizzaId))
+                    ingredients.add(
+                        Ingredient(
+                            ingredientId,
+                            shopId,
+                            ingredientNameFr,
+                            ingredientNameEn,
+                            createDate,
+                            updateDate,
+                            pizzaId
+                        )
+                    )
                 }
 
                 val pricesArray = itemObject.getJSONArray("prices")
@@ -218,7 +282,17 @@ class CategoryActivity : ComponentActivity() {
                     prices.add(Price(priceId, pizzaId, sizeId, price, createDate, updateDate, size))
                 }
 
-                val menuItem = MenuItem(id, nameFr, nameEn, categoryId, categoryNameFr, categoryNameEn, images, ingredients, prices)
+                val menuItem = MenuItem(
+                    id,
+                    nameFr,
+                    nameEn,
+                    categoryId,
+                    categoryNameFr,
+                    categoryNameEn,
+                    images,
+                    ingredients,
+                    prices
+                )
                 menuItems.add(menuItem)
             }
         }
@@ -229,11 +303,15 @@ class CategoryActivity : ComponentActivity() {
 
 }
 
-
 @Composable
 fun CategoryScreen(name: String, items: List<MenuItem>, context: Context) {
+
+    val scrollState = rememberScrollState()
+
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .verticalScroll(scrollState)
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -249,31 +327,50 @@ fun CategoryScreen(name: String, items: List<MenuItem>, context: Context) {
         )
         val filteredItems = items.filter { it.categoryNameFr == name }
         filteredItems.forEach { item ->
-            Row(
+            Column (
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
                         navigateToCourseActivity(context, item)
                     }
                     .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = item.nameFr,
-                    style = customItemsStyle
+                Image(
+                    painter = rememberImagePainter(item.images.first()), // Load the first image from the list
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(75.dp),
+                    contentScale = ContentScale.FillWidth
                 )
-                Text(
-                    text = item.prices.joinToString("€, ") { it.price } + "€",
-                    style = customItemsStyle
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = item.nameFr,
+                        style = customItemsStyle,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = item.prices.joinToString("€, ") { it.price } + "€",
+                        style = customItemsStyle
+                    )
+                }
             }
         }
     }
 }
 
+fun countCartItems(context: Context): Int {
+    val cartItems = readCartItems(context)
+    return cartItems.sumBy { it.quantity }
+}
 
-// Function to navigate to CourseActivity
+
 fun navigateToCourseActivity(context: Context, item: MenuItem) {
     val intent = Intent(context, CourseActivity::class.java)
     intent.putExtra("itemName", item.nameFr)
