@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,6 +35,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.MaterialTheme
 import org.json.JSONArray
+import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.graphics.Color
 
 
 data class MenuItem(
@@ -80,24 +81,26 @@ data class CartItem(
 @Composable
 fun TopBar (
     onBackClicked: () -> Unit,
-    onCartClicked: () -> Unit
+    onCartClicked: () -> Unit,
+    topBarName: String
 ) {
     Surface (
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.primary
+        modifier = Modifier.fillMaxWidth()
     ) {
         TopAppBar(
-            title = { Text(text = "Item Details") },
+            title = { Text(text = topBarName, style = TextStyle(fontSize = 20.sp), color = Color.White)},
             navigationIcon = {
                 IconButton(onClick = onBackClicked) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
             },
             actions = {
                 IconButton(onClick = onCartClicked) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
+                    Icon(Icons.Default.ShoppingCart, contentDescription = "Cart", tint = Color.White)
                 }
-            }
+            },
+            // Set the background color to blue
+            backgroundColor = Color(0xFF448CC4)
         )
     }
 }
@@ -123,7 +126,8 @@ class CategoryActivity : ComponentActivity() {
                     onCartClicked = {
                         val intent = Intent(this@CategoryActivity, CartActivity::class.java)
                         startActivity(intent)
-                    }
+                    },
+                    topBarName = "$name"
                 )
                 CategoryScreen(name, items, this@CategoryActivity)
             }
@@ -150,7 +154,8 @@ class CategoryActivity : ComponentActivity() {
                             onCartClicked = {
                                 val intent = Intent(this@CategoryActivity, CartActivity::class.java)
                                 startActivity(intent)
-                            }
+                            },
+                            topBarName = "$name"
                         )
                         CategoryScreen(name, items, this@CategoryActivity)
                     }

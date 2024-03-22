@@ -67,7 +67,8 @@ class CourseActivity : ComponentActivity() {
                         onCartClicked = {
                             val intent = Intent(this@CourseActivity, CartActivity::class.java)
                             startActivity(intent)
-                        }
+                        },
+                        topBarName = if (itemName.length > 15) "${itemName.take(15)}... Details" else "$itemName Details"
                     )
                     CourseDetails(
                         itemName = itemName,
@@ -236,25 +237,5 @@ fun addToCart(item: CartItem, context: Context) {
     Toast.makeText(context, "Item added to cart", Toast.LENGTH_SHORT).show()
     println("jsonArray: $jsonArray")
     println("cartFile: ${cartFile.readText()}")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CourseDetailsPreview() {
-    AndroidERestaurantTheme {
-        Column {
-            TopBar(
-                onBackClicked = { /*TODO*/ },
-                onCartClicked = { /*TODO*/ }
-            )
-            CourseDetails(
-                itemName = "Item Name",
-                itemPrices = listOf("$10"),
-                ingredient = "Ingredient 1, Ingredient 2",
-                images = listOf("https://source.unsplash.com/random/200x200"),
-                context = MainActivity()
-            )
-        }
-    }
 }
 

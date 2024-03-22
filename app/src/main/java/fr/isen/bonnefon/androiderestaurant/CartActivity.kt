@@ -23,10 +23,29 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Divider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
+
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.verticalScroll
+
+import androidx.compose.foundation.rememberScrollState
+
+import org.json.JSONObject
+
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
 
 
 class CartActivity : ComponentActivity() {
@@ -38,14 +57,21 @@ class CartActivity : ComponentActivity() {
                     TopBar(
                         onBackClicked = { finish() },
                         onCartClicked = {
-                            Toast.makeText(this@CartActivity, "Vous etes deja dans le panier", Toast.LENGTH_SHORT).show()
-                        }
+                            Toast.makeText(
+                                this@CartActivity,
+                                "Vous etes deja dans le panier",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        topBarName = "Panier"
                     )
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        CartContent(this@CartActivity)
+                        CartContent(this@CartActivity) { item ->
+                            onDeleteItem(this@CartActivity, item)
+                        }
                     }
                 }
             }
@@ -54,27 +80,71 @@ class CartActivity : ComponentActivity() {
 }
 
 @Composable
-fun CartContent(context: Context) { // Accept Context as parameter
+fun CartContent(context: Context, onDeleteItem: (CartItem) -> Unit) {
     // Read contents of cart.json and parse JSON data
-    val cartItems = readCartItems(context)
-    println(cartItems)
+    var cartItems by remember { mutableStateOf(readCartItems(context)) } // Use mutableStateOf to hold the cart items
 
-    Column(
+    val scrollState = rememberScrollState()
+
+    Box(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
     ) {
-        Text(
-            text = "Panier",
-            style = customTitleStyle,
-            modifier = Modifier.padding(top = 50.dp)
-        )
-        Divider(
-            modifier = Modifier.padding(horizontal = 90.dp, vertical = 8.dp),
-            color = Color.Gray,
-            thickness = 1.dp
-        )
-        cartItems.forEach { item ->
+        Column(
+            modifier = Modifier.verticalScroll(scrollState),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Panier",
+                style = customTitleStyle,
+                modifier = Modifier.padding(top = 50.dp)
+            )
+            Divider(
+                modifier = Modifier.padding(horizontal = 90.dp, vertical = 8.dp),
+                color = Color.Gray,
+                thickness = 1.dp
+            )
+            // List of items
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                cartItems.forEach { item ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (item.name.length > 20) "${item.name.take(20)}..." else item.name,
+                            style = customItemsStyle,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "${item.price}€ x ${item.quantity}",
+                                style = customItemsStyle,
+                                modifier = Modifier.padding(end = 16.dp)
+                            )
+                            // Add delete icon button with onDeleteItem callback
+                            IconButton(
+                                onClick = {
+                                    onDeleteItem(item)
+                                    cartItems = readCartItems(context) // Update cartItems after deleting the item
+                                },
+                                modifier = Modifier.padding(end = 10.dp)
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = "Delete")
+                            }
+                        }
+                    }
+                }
+            }
+            Divider(
+                modifier = Modifier.padding(vertical = 16.dp),
+                color = Color.Gray,
+                thickness = 1.dp
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -83,42 +153,20 @@ fun CartContent(context: Context) { // Accept Context as parameter
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = item.name,
+                    text = "Total",
                     style = customItemsStyle,
                     modifier = Modifier.padding(end = 10.dp)
                 )
                 Text(
-                    text = item.price.toString() + "€ x " + item.quantity.toString(),
+                    text = "${cartItems.sumOf { it.price * it.quantity }}€",
                     style = customItemsStyle,
                     modifier = Modifier.padding(end = 2.dp)
                 )
             }
         }
-        Divider(
-            modifier = Modifier.padding(vertical = 16.dp),
-            color = Color.Gray,
-            thickness = 1.dp
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Total",
-                style = customItemsStyle,
-                modifier = Modifier.padding(end = 10.dp)
-            )
-            Text(
-                text = cartItems.sumOf { it.price * it.quantity }.toString() + "€",
-                style = customItemsStyle,
-                modifier = Modifier.padding(end = 2.dp)
-            )
-        }
     }
 }
+
 
 
 
@@ -143,12 +191,27 @@ fun readCartItems(context: Context): List<CartItem> { // Accept Context as param
     return cartItems
 }
 
-@Preview(showBackground = true)
-@Composable
-fun CartContentPreview() {
-    AndroidERestaurantTheme {
-        CartContent(
-            context = MainActivity()
-        )
+// Function to handle deletion of an item from the cart
+fun onDeleteItem(context: Context, item: CartItem) {
+    val cartItems = readCartItems(context).toMutableList()
+    // Find the index of the item to delete
+    val index = cartItems.indexOfFirst { it == item }
+    if (index != -1) {
+        // Remove the item from the list
+        cartItems.removeAt(index)
+        // Update the JSON file with the modified list
+        val jsonArray = JSONArray()
+        cartItems.forEach { cartItem ->
+            val jsonObject = JSONObject().apply {
+                put("name", cartItem.name)
+                put("price", cartItem.price)
+                put("ingredient", cartItem.ingredient)
+                put("quantity", cartItem.quantity)
+                put("img", cartItem.img)
+            }
+            jsonArray.put(jsonObject)
+        }
+        val cartFile = File(context.filesDir, "cart.json")
+        cartFile.writeText(jsonArray.toString())
     }
 }
