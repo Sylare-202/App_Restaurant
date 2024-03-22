@@ -81,7 +81,7 @@ fun MenuButton(activity: MainActivity, text: String) {
             .padding(8.dp)
             .size(200.dp, 50.dp)
     ) {
-        Text(text = text)
+        Text(text = text, style = TextStyle(fontSize = 20.sp))
     }
 }
 

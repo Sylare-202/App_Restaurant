@@ -130,7 +130,8 @@ fun CartContent(context: Context, onDeleteItem: (CartItem) -> Unit) {
                             IconButton(
                                 onClick = {
                                     onDeleteItem(item)
-                                    cartItems = readCartItems(context) // Update cartItems after deleting the item
+                                    cartItems = readCartItems(context)
+                                    Toast.makeText(context, "Objet enlevé du panier", Toast.LENGTH_SHORT).show()
                                 },
                                 modifier = Modifier.padding(end = 10.dp)
                             ) {

@@ -50,6 +50,7 @@ import org.json.JSONObject
 import java.io.File
 
 import android.widget.Toast
+import androidx.compose.material.icons.materialIcon
 
 class CourseActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -234,7 +235,7 @@ fun addToCart(item: CartItem, context: Context) {
 
     cartFile.writeText(jsonArray.toString())
 
-    Toast.makeText(context, "Item added to cart", Toast.LENGTH_SHORT).show()
+    Toast.makeText(context, "Objet ajouté du panier", Toast.LENGTH_SHORT).show()
     println("jsonArray: $jsonArray")
     println("cartFile: ${cartFile.readText()}")
 }

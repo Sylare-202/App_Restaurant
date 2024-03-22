@@ -252,23 +252,20 @@ fun CategoryScreen(name: String, items: List<MenuItem>, context: Context) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .clickable {
+                        navigateToCourseActivity(context, item)
+                    }
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = item.nameFr,
-                    style = customItemsStyle,
-                    modifier = Modifier
-                        .padding(end = 10.dp)
-                        .clickable {
-                            navigateToCourseActivity(context, item)
-                        }
+                    style = customItemsStyle
                 )
                 Text(
                     text = item.prices.joinToString("€, ") { it.price } + "€",
-                    style = customItemsStyle,
-                    modifier = Modifier.padding(end = 5.dp)
+                    style = customItemsStyle
                 )
             }
         }
